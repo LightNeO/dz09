@@ -1,2 +1,2 @@
-pytest
-pyserial
+pytest>=8.0
+pyserial>=3.5

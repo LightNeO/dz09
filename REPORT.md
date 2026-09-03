@@ -3,22 +3,41 @@
 ## Стенд
 
 - Плата: ESP32-S3 DevKit
-- Firmware: `../fw_3/demo_fw_3_merged.bin`
+- Firmware image: `../fw_3/demo_fw_3_merged.bin`
+- Boot application: `fw_1`, version `1`
 - UART: 115200 8N1
-- VID: налаштовується через змінну середовища `ESP32_VID`
+- VID: задається через змінну середовища `ESP32_VID`
 
-## Крок 0
+## Крок 0 — Boot verification
 
-Прошивку встановлено та перевірено boot-лог. За boot-логом використовується firmware `fw_1`, версія застосунку `1`. Первинна причина reset: `POWERON`. Фактичний маркер готовності цієї прошивки — `Device ready`, а не `App started`; це погоджено з викладачем.
+За boot-логом:
 
-## Запуск тестів
+- reset reason: `POWERON`;
+- ready marker: `Device ready`;
+- `App started` у фактичному boot output відсутній.
+
+Заміна маркера на `Device ready` використовується за погодженням із викладачем.
+
+## Firmware adaptation
+
+Надана прошивка повертає текстові diagnostic logs, а не JSON-структури з початкового формулювання. Тому smoke-тести перевіряють фактичний контракт CLI:
+
+- `status` повертає status log і marker `Done`;
+- `distance` повертає числове значення у сантиметрах;
+- `led on` приймається пристроєм і повертається в response.
+
+Команда `version` у фактичній прошивці не підтримується, тому замість неї використовується smoke-перевірка `led on`.
+
+## Test execution
 
 ```text
 pytest -v
 ```
 
-Результат запуску буде додано після реалізації smoke та functional тестів.
+Smoke tests:
 
-## Додаткове завдання
+```text
+3 tests collected
+```
 
-Mean/std/min/max тесту стабільності буде додано після виконання тесту на стенді.
+Фактичний результат повного запуску буде додано після стабільного прогону на вільному COM-порті.

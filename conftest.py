@@ -1,9 +1,10 @@
-"""Shared pytest fixtures for DZ-09."""
+"""Shared pytest fixtures"""
 import os
 
 import pytest
 
 from drivers.device_driver import DeviceDriver
+from tests.constants import BOOT_READY_PATTERN, BOOT_TIMEOUT_SECONDS
 
 
 @pytest.fixture(scope="session")
@@ -13,15 +14,21 @@ def device() -> DeviceDriver:
     vid = int(vid_text, 0) if vid_text else None
     driver = DeviceDriver(DeviceDriver.find_port(vid=vid))
     driver.open()
-    # The firmware requires AUTH_USER for most commands. Create the profile
-    # once if needed and establish a session before exposing the fixture.
-    login = os.getenv("DUT_LOGIN", "1")
-    password = os.getenv("DUT_PASSWORD", "1")
-    if not driver.login(login, password):
-        driver.close()
-        pytest.fail("Could not log in to DUT")
-    yield driver
-    driver.close()
+    # The firmware requires AUTH_USER for most commands.
+    login = os.getenv("DUT_LOGIN")
+    password = os.getenv("DUT_PASSWORD")
+    try:
+        if not driver.login(login, password):
+            pytest.fail("Could not log in to DUT")
+        yield driver
+    finally:
+        try:
+            if driver.ser and driver.ser.is_open:
+                driver.reboot()
+        except Exception:
+            pass
+        finally:
+            driver.close()
 
 
 @pytest.fixture(scope="function")
@@ -30,11 +37,11 @@ def clean_device(device: DeviceDriver) -> DeviceDriver:
     device.load_config()
     device.reboot()
 
-    if not device.wait_for_pattern("Device ready", timeout=10):
-        pytest.fail("Firmware did not emit 'Device ready' after reboot")
+    if not device.wait_for_pattern(BOOT_READY_PATTERN, timeout=BOOT_TIMEOUT_SECONDS):
+        pytest.fail(f"Firmware did not emit {BOOT_READY_PATTERN!r} after reboot")
 
-    login = os.getenv("DUT_LOGIN", "1")
-    password = os.getenv("DUT_PASSWORD", "1")
+    login = os.getenv("DUT_LOGIN")
+    password = os.getenv("DUT_PASSWORD")
 
     if not device.login(login, password):
         pytest.fail("Could not log in after reboot")
