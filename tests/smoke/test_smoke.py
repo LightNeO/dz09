@@ -8,7 +8,7 @@ from drivers.device_driver import DeviceDriver
 from tests.constants import (
     DISTANCE_LOG_MARKER,
     DISTANCE_UNIT,
-    LED_ON_COMMAND_ECHO,
+    LED_ON_COMMAND,
     MIN_VALID_DISTANCE_CM,
     STATUS_COMPLETION_MARKER,
     STATUS_MARKER,
@@ -54,5 +54,5 @@ def test_led_command_works(clean_device: DeviceDriver) -> None:
     normalized_response = response_text.casefold()
 
     assert (
-        LED_ON_COMMAND_ECHO.casefold() in normalized_response
+        LED_ON_COMMAND.casefold() in normalized_response
     ), f"The device did not echo the LED command: {response_text!r}"

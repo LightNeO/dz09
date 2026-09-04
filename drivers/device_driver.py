@@ -1,4 +1,4 @@
-"""UART driver for the ESP32-S3 device under test"""
+"""UART driver for the ESP32-S3 device under test."""
 
 from __future__ import annotations
 
@@ -7,6 +7,7 @@ import time
 
 import serial
 from serial.tools import list_ports
+
 from drivers.protocol_constants import (
     AUTH_TIMEOUT_SECONDS,
     COMMAND_TIMEOUT_SECONDS,
@@ -68,8 +69,9 @@ class DeviceDriver:
 
     @staticmethod
     def clean_line(raw: bytes) -> str:
-        text = raw.decode("utf-8", errors="replace")
-        return ANSI_ESCAPE_RE.sub("", text).rstrip("\r\n")
+        return ANSI_ESCAPE_RE.sub(
+            "", raw.decode("utf-8", errors="replace")
+        ).rstrip("\r\n")
 
     def read_lines(
         self, timeout: float | None = None, end_pattern: str | None = None
@@ -111,17 +113,80 @@ class DeviceDriver:
     def get_distance(self) -> list[str]:
         return self.send_command("distance", timeout=COMMAND_TIMEOUT_SECONDS)
 
+    def distance_status(self) -> list[str]:
+        return self.send_command(
+            "distance status", timeout=COMMAND_TIMEOUT_SECONDS
+        )
+
+    def distance_stats(self) -> list[str]:
+        return self.send_command(
+            "distance stats", timeout=COMMAND_TIMEOUT_SECONDS
+        )
+
+    def distance_alarm(self, threshold_cm: int) -> list[str]:
+        return self.send_command(
+            f"distance alarm {threshold_cm}", timeout=COMMAND_TIMEOUT_SECONDS
+        )
+
+    def distance_alarm_off(self) -> list[str]:
+        return self.send_command(
+            "distance alarm off", timeout=COMMAND_TIMEOUT_SECONDS
+        )
+
+    def sensor_mode_distance(self) -> list[str]:
+        return self.send_command(
+            "sensor mode distance", timeout=COMMAND_TIMEOUT_SECONDS
+        )
+
+    def sensor_start(self) -> list[str]:
+        return self.send_command(
+            "sensor start", timeout=COMMAND_TIMEOUT_SECONDS
+        )
+
+    def sensor_stop(self) -> list[str]:
+        return self.send_command(
+            "sensor stop", timeout=COMMAND_TIMEOUT_SECONDS
+        )
+
+    def alarm_arm(self) -> list[str]:
+        return self.send_command("alarm arm", timeout=COMMAND_TIMEOUT_SECONDS)
+
+    def alarm_status(self) -> list[str]:
+        return self.send_command(
+            "alarm status", timeout=COMMAND_TIMEOUT_SECONDS
+        )
+
+    def distance_zone(self, zone: str) -> list[str]:
+        return self.send_command(
+            f"distance zone {zone}", timeout=COMMAND_TIMEOUT_SECONDS
+        )
+
     def led_on(self) -> list[str]:
         return self.send_command("led on", timeout=COMMAND_TIMEOUT_SECONDS)
 
     def led_off(self) -> list[str]:
         return self.send_command("led off", timeout=COMMAND_TIMEOUT_SECONDS)
 
-    def save_config(self) -> None:
-        self.send_command("config save")
+    def set_alarm_threshold(self, value: int) -> list[str]:
+        return self.send_command(
+            f"config set alarm_threshold {value}",
+            timeout=COMMAND_TIMEOUT_SECONDS,
+        )
 
-    def load_config(self) -> None:
-        self.send_command("config load")
+    def get_alarm_threshold_response(self) -> list[str]:
+        return self.send_command(
+            "config get alarm_threshold", timeout=COMMAND_TIMEOUT_SECONDS
+        )
+
+    def save_config(self) -> list[str]:
+        return self.send_command(
+            "config save", timeout=COMMAND_TIMEOUT_SECONDS
+        )
+
+    def load_config(self) -> list[str]:
+        return self.send_command(
+            "config load", timeout=COMMAND_TIMEOUT_SECONDS
+        )
 
     def reboot(self) -> None:
         ser = self._require_open()
