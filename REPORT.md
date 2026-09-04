@@ -3,7 +3,7 @@
 ## Стенд
 
 - Плата: ESP32-S3 DevKit
-- Firmware image: `../fw_3/demo_fw_3_merged.bin`
+- Firmware image: `../fw_3/demo_fw_3_merged.bin` (змерджена самостійно)
 - Boot application: `fw_1`, version `1`
 - UART: 115200 8N1
 - VID: задається через змінну середовища `ESP32_VID`
@@ -16,28 +16,44 @@
 - ready marker: `Device ready`;
 - `App started` у фактичному boot output відсутній.
 
-Заміна маркера на `Device ready` використовується за погодженням із викладачем.
 
-## Firmware adaptation
-
-Надана прошивка повертає текстові diagnostic logs, а не JSON-структури з початкового формулювання. Тому smoke-тести перевіряють фактичний контракт CLI:
-
-- `status` повертає status log і marker `Done`;
-- `distance` повертає числове значення у сантиметрах;
-- `led on` приймається пристроєм і повертається в response.
-
-Команда `version` у фактичній прошивці не підтримується, тому замість неї використовується smoke-перевірка `led on`.
+.
 
 ## Test execution
+
+Command:
 
 ```text
 pytest -v
 ```
 
-Smoke tests:
+Result:
 
 ```text
-3 tests collected
+13 passed, 1 xfailed in 834.54s (0:13:54)
 ```
 
-Фактичний результат повного запуску буде додано після стабільного прогону на вільному COM-порті.
+Pytest collected 14 test cases. The expected failure is the known firmware persistence issue in `test_config_survives_reboot`: `alarm_threshold` is not restored after reboot and returns to the firmware default value.
+
+## Distance stability results
+
+Test: `test_distance_readings_are_stable`
+
+- Readings: 100
+- Mean: `19.30 cm`
+- Standard deviation: `0.04 cm`
+- Minimum: `19.00 cm`
+- Maximum: `19.40 cm`
+- Spread: `0.40 cm`
+
+Assertions:
+
+- Mean within `20 ± 2 cm`: PASS
+- Standard deviation `< 1.5 cm`: PASS
+- Spread `< 5 cm`: PASS
+
+Execution result:
+
+```text
+1 passed in 427.88s (0:07:07)
+```

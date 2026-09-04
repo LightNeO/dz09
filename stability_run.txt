@@ -1,0 +1,26 @@
+============================= test session starts =============================
+platform win32 -- Python 3.12.4, pytest-9.1.1, pluggy-1.6.0 -- C:\Users\anton.yeryomin_qates\AppData\Local\Programs\Python\Python312\python.exe
+cachedir: .pytest_cache
+rootdir: D:\QA\AI\Goose_main\emb\L9_homework\dz09
+configfile: pytest.ini
+plugins: anyio-4.14.2
+collecting ... collected 1 item
+
+tests/functional/test_distance_stability.py::test_distance_readings_are_stable ERROR
+
+=================================== ERRORS ====================================
+_____________ ERROR at setup of test_distance_readings_are_stable _____________
+conftest.py:16: in device
+    driver.open()
+drivers\device_driver.py:51: in open
+    self.ser = serial.Serial(
+C:\Users\anton.yeryomin_qates\AppData\Local\Programs\Python\Python312\Lib\site-packages\serial\serialwin32.py:33: in __init__
+    super(Serial, self).__init__(*args, **kwargs)
+C:\Users\anton.yeryomin_qates\AppData\Local\Programs\Python\Python312\Lib\site-packages\serial\serialutil.py:244: in __init__
+    self.open()
+C:\Users\anton.yeryomin_qates\AppData\Local\Programs\Python\Python312\Lib\site-packages\serial\serialwin32.py:64: in open
+    raise SerialException("could not open port {!r}: {!r}".format(self.portstr, ctypes.WinError()))
+E   serial.serialutil.SerialException: could not open port 'COM3': PermissionError(13, 'Access is denied.', None, 5)
+=========================== short test summary info ===========================
+ERROR tests/functional/test_distance_stability.py::test_distance_readings_are_stable - serial.serialutil.SerialException: could not open port 'COM3': PermissionError(13, 'Access is denied.', None, 5)
+============================== 1 error in 0.08s ===============================
